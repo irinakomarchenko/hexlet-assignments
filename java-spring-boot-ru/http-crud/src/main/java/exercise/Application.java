@@ -48,16 +48,15 @@ public class Application {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<Post> show(@PathVariable String id) {
-        var post = posts.stream()
+    public Post show(@PathVariable String id) {
+        return posts.stream()
                 .filter(p -> p.getId().equals(id))
-                .findFirst();
-        return post.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .findFirst()
+                .orElse(null);
     }
 
     @PutMapping("/posts/{id}")
-    public ResponseEntity<Post> update(@PathVariable String id, @RequestBody Post data) {
+    public Post update(@PathVariable String id, @RequestBody Post data) {
         var maybePost = posts.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
@@ -65,19 +64,14 @@ public class Application {
             var post = maybePost.get();
             post.setTitle(data.getTitle());
             post.setBody(data.getBody());
-            return ResponseEntity.ok(post);
+            post.setId(data.getId());
+            return post;
         } else {
-            return ResponseEntity.notFound().build();
+            return null;
         }
     }
-
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<Void> destroy(@PathVariable String id) {
-        boolean removed = posts.removeIf(p -> p.getId().equals(id));
-        if (removed) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public void destroy(@PathVariable String id) {
+        posts.removeIf(p -> p.getId().equals(id));
     }
 }

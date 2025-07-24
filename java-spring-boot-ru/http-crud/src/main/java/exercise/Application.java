@@ -1,11 +1,11 @@
 package exercise;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.ArrayList;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,30 +48,36 @@ public class Application {
     }
 
     @GetMapping("/posts/{id}")
-    public Optional<Post> show(@PathVariable String id) {
-        return posts.stream()
-                .filter(p -> p.getId() == id)
+    public ResponseEntity<Post> show(@PathVariable String id) {
+        var post = posts.stream()
+                .filter(p -> p.getId().equals(id))
                 .findFirst();
+        return post.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/posts/{id}")
-    public Post update(@PathVariable String id, @RequestBody Post data) {
+    public ResponseEntity<Post> update(@PathVariable String id, @RequestBody Post data) {
         var maybePost = posts.stream()
-                .filter(p -> p.getId() == id)
+                .filter(p -> p.getId().equals(id))
                 .findFirst();
         if (maybePost.isPresent()) {
             var post = maybePost.get();
             post.setTitle(data.getTitle());
             post.setBody(data.getBody());
-            // другие поля по необходимости
-            return post;
+            return ResponseEntity.ok(post);
         } else {
-            return null;
+            return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/posts/{id}")
-    public void destroy(@PathVariable String id) {
-        posts.removeIf(p -> p.getId() == id);
+    public ResponseEntity<Void> destroy(@PathVariable String id) {
+        boolean removed = posts.removeIf(p -> p.getId().equals(id));
+        if (removed) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

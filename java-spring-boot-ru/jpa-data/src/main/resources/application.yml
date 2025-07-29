@@ -1,0 +1,11 @@
+---
+spring:
+  # BEGIN
+  spring:
+    jpa:
+      hibernate:
+        ddl-auto: update
+  # END
+  output:
+    ansi:
+      enabled: always

@@ -18,8 +18,6 @@ import exercise.Data;
 @RestController
 @RequestMapping("/api")
 public class PostsController {
-    @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
 
     @GetMapping("/users/{id}/posts")
     public List<Post> getUserPosts(@PathVariable int id) {
